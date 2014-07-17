@@ -1,6 +1,3 @@
--- - Tried to get backward iteration working but no avail
--- - Fixed a tiny graphics glitch that made (0,0) an oval
-
 help = true
 
 function love.load()

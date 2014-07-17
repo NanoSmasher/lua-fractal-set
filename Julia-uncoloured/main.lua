@@ -1,5 +1,13 @@
--- - Tried to get backward iteration working but no avail
--- - Fixed a tiny graphics glitch that made (0,0) an oval
+--[[
+<<Program 3: Julia Sets>>
+
+Consider the function Q(x) = x^2 + c
+
+We need to know that for a particular c value, x0 can either tend to infinity or stay in orbit. The Julia set is a real axis - imaginary axis plane [-2,2] in which the black points are orbit staying and white bounds are orbits tending to infinity.
+
+Julia Sets are useful in determining a basin boundary of any function.
+
+]]
 
 help = true
 
@@ -23,8 +31,8 @@ function love.load()
 	cRe = 0.3 -- real seed
 	cIm = -0.4 -- imaginary seed
 	zoom = 1
-	moveX = 0
-	moveY = 0
+	dX = 0
+	dY = 0
 end
 
 function love.draw()
@@ -35,8 +43,8 @@ function love.draw()
 		love.graphics.print("Hit space' to toggle help module",0,0)
 		love.graphics.print("Real seed, hit <> to change:         " .. cRe,0,20)
 		love.graphics.print("Imaginary seed, hit [] to change:  "..cIm,0,40)
-		love.graphics.print("Displacement, hit 'w/s/a/d' to change:  "..moveX.." ,"..moveY,0,60)
-		love.graphics.print("Zoom level, hit 'q/e' to change:  "..zoom,0,80)
+		love.graphics.print("Zoom level (middle mouse button): "..zoom,0,60)
+		love.graphics.print("Displacement (cursor keys): "..dX..","..dY,0,80)
 		love.graphics.print("'z' creates a filled in Julia Set",0,100)
 		love.graphics.print("'x' creates a backwards iteration Julia Set",0,120)
 		love.graphics.print("'c' creates a boundary scanning Julia Set",0,140)
@@ -50,16 +58,22 @@ function love.keypressed(key)
 	if key == "z" then juliafilled() end
 	if key == "x" then juliaback() end
 	if key == "c" then juliabound() end
-	if key == "," then	if cRe >-0.6 then cRe=cRe-0.05 end	end
-	if key == "." then	if cRe <0.6  then cRe=cRe+0.05 end	end
-	if key == "[" then	if cIm >-0.6 then cIm=cIm-0.05 end	end
-	if key == "]" then	if cIm <0.6  then cIm=cIm+0.05 end	end
-	if key == "w" then moveY = moveY + 0.05 end
-	if key == "s" then moveY = moveY - 0.05 end
-	if key == "a" then moveX = moveX - 0.05 end
-	if key == "d" then moveX = moveX + 0.05 end
-	if key == "q" then zoom = zoom + 1 end
-	if key == "e" and zoom > 1 then zoom = zoom - 1 end
+end
+
+function love.update(dt)
+	if love.keyboard.isDown("up") then dY = dY + 0.05 end
+	if love.keyboard.isDown("down") then dY = dY - 0.05 end
+	if love.keyboard.isDown("left") then dX = dX + 0.05 end
+	if love.keyboard.isDown("right") then dX = dX - 0.05 end
+	if love.keyboard.isDown(",") then	if cRe >-0.6 then cRe=cRe-0.01 end	end
+	if love.keyboard.isDown(".") then	if cRe <0.6  then cRe=cRe+0.01 end	end
+	if love.keyboard.isDown("[") then	if cIm >-0.6 then cIm=cIm-0.01 end	end
+	if love.keyboard.isDown("]") then	if cIm <0.6  then cIm=cIm+0.01 end	end
+end
+
+function love.mousepressed(x, y, b)
+	if (b=='wu') then zoom = zoom + 1 end
+	if (b=='wd') then zoom = zoom - 1 end
 end
 
 function juliafilled()
@@ -70,8 +84,8 @@ function juliafilled()
 	love.graphics.setColor(0,0,0)
 	for x = 0, winW do 
 		for y = 0, winH do
-			newRe = (-2 + x/(winW/4) - moveX)/zoom	-- convert screen coordinates into actual coordinates
-			newIm = (2 - y/(winH/4) - moveY)/zoom	-- convert screen coordinates into actual coordinates
+			newRe = (-2 + x/(winW/4) - dX)/zoom	-- convert screen coordinates into actual coordinates
+			newIm = (2 + dY - y/(winH/4))/zoom	-- convert screen coordinates into actual coordinates
 			if (escape(newRe,newIm) == 1) then love.graphics.point(x,y) end
 		end
 	end
@@ -157,5 +171,5 @@ function escape(newRe,newIm)
 		if  radius > 4 then return 0 end 			-- quicker to invoke [|z|^2 > 4] than [|z| > 2]
 	end
 
-	if radius <= 4 then return 1 end
+	return 1
 end
