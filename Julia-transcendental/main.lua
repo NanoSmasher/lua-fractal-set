@@ -43,7 +43,7 @@ function love.draw()
 	love.graphics.setColor(255,0,0)
 	if help then
 		love.graphics.print("Hit space' to toggle help module",0,0)
-		love.graphics.print("Real seed, hit <> to change:         " .. cRe,0,20)
+		love.graphics.print("Real seed, hit <> to change:       " .. cRe,0,20)
 		love.graphics.print("Imaginary seed, hit [] to change:  "..cIm,0,40)
 		love.graphics.print("Zoom level (middle mouse button): "..zoom,0,60)
 		love.graphics.print("Displacement (cursor keys): "..dX..","..dY,0,80)
