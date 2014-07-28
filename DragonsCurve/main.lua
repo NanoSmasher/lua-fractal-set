@@ -7,7 +7,7 @@ Take one line and choose [A] or [B]
 
 --- expands to R \/ L
 
-[B] "curl" it to the right. meaning:
+[B] "curl" it to the left. meaning:
 
 --- expands to R /\ L
 
@@ -33,32 +33,18 @@ function love.load()
 
 	oline = {{500,350,200,350,'r'}} -- The "original" line. for this program it'll be constant.
 	dline = oline
-	
-	
-	dx = 0 dy = 0 -- mouse stuff. Thank god I don't need semicolons;
-	r=0
-	s=1
-	ox=0
-	oy=0
-end
-
-function love.update()
-	dx, dy = love.mouse.getPosition()
 end
 
 function love.draw()
 	love.graphics.setColor(255,255,255)
-	love.graphics.draw(canvas, 0, 0, r, s, s, ox, oy)
+	love.graphics.draw(canvas)
 	love.graphics.setColor(255,0,0)
 	if help then
 		love.graphics.print("Hit 'space' to toggle help module",0,0)
 		love.graphics.print("'z' to add one iteration to the dragon curve",0,20)
-		love.graphics.print("'x' to to draw the current dragon curve",0,40)
+		love.graphics.print("'x' to undo the last iteration",0,40)
 		love.graphics.print("Current number of lines: "..#dline,0,80)
 			love.graphics.print("Be careful! A large number of lines (131072) takes long time to calculate!: ",20,100)
-		
-		love.graphics.print("Coordinates: "..dx..", "..dy,500,0)
-		love.graphics.print(r..":"..s..":"..ox..":"..oy,350,0)
 	end
 end
 
@@ -73,24 +59,17 @@ function love.keypressed(key)
 	if key == "down" then oy = oy + 10 end
 end
 
-function love.mousepressed(b)
-	if b=='1' then s = s + 0.1 end
-	if b=='r' then s = s - 0.1 end
-end
-
 function drawcurve(x)
+	if not x then dline = dragoncurve(dline)
+	else dline = back(dline) end
+
 	love.graphics.setCanvas(canvas)
 	canvas:clear()
 	love.graphics.setColor(255,255,255)
 	love.graphics.rectangle('fill', 0, 0, winW, winH)
 	love.graphics.setColor(0,0,0)
-	
-	if not x then dline = dragoncurve(dline)
-	elseif x=="reverse" then dline = back(dline) end
-	
-	for i = 1, #dline do
-		love.graphics.line(dline[i][1],dline[i][2],dline[i][3],dline[i][4])
-	end
+
+	for i = 1, #dline do love.graphics.line(dline[i][1],dline[i][2],dline[i][3],dline[i][4]) end
 
 	love.graphics.setCanvas()
 end
@@ -108,14 +87,11 @@ end
 
 function dragoncurve(dline)
 	local fline = {}
-	--if n==0 then return dline end
-	local x = 1
 	for i, v in ipairs(dline) do
 		if v[5] == 'r' then rcurve(v,fline) -- v[1] to v[4] are the line coordinates, v[5] is the type of curve
 		else lcurve(v,fline)
 		end
 	end
-	--fline = dragoncurve(fline,n-1)
 	return fline
 end
 
@@ -185,9 +161,7 @@ function lcurve(line,out)
 end
 
 -- length of line. Duh.
-function length(line)
-	return math.sqrt(math.abs(line[1]-line[3])*math.abs(line[1]-line[3])+math.abs(line[2]-line[4])*math.abs(line[2]-line[4]))
-end
+function length(l) return math.sqrt(math.abs(l[1]-l[3])*math.abs(l[1]-l[3])+math.abs(l[2]-l[4])*math.abs(l[2]-l[4])) end
 
 function dir(line)
 	--It goes clockwise with 0 at the top. Remember the coordinate system has 'y' going down instead of up.
